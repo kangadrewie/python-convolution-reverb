@@ -28,6 +28,9 @@ class AudioController():
         return event
 
     def load(self, file):
-        self.file = None # destroy pointer to old File instance
-        self.file = File(file)
-        return True
+        try:
+            self.file = None # destroy pointer to old File instance if reloading new file
+            self.file = File(file)
+            return True
+        except:
+            return False
