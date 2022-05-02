@@ -1,6 +1,7 @@
+from tkinter import Tk
+
 # Lib Imports
-from tkinter import Tk, Label
-from turtle import bgcolor
+from src.lib.audio_controller import AudioController
 
 # Component Imports
 from src.components.template_list.template_list import TemplateList
@@ -17,13 +18,16 @@ class Application():
         self.root.resizable(0, 0)
         self.setTheme()
 
+        # Libraries
+        self.audioController = AudioController()
+
         # Layout
         self.root.columnconfigure(0, weight=1)
         self.root.columnconfigure(1, weight=2)
 
         self.templateList = TemplateList(self)
-        self.mediaControls = MediaControls(self)
-        self.functionalControls = FunctionalControls(self)
+        self.mediaControls = MediaControls(self, self.audioController)
+        self.functionalControls = FunctionalControls(self, self.audioController)
 
     def setTheme(self):
         self.root.tk.call("source", "sun-valley.tcl")
@@ -33,8 +37,7 @@ class Application():
         return self.root.mainloop()
 
     def init(self):
-        # Default template list to be first item. Must be changed before app.run()
-        self.templateList.list.selection_set(first=0)
+        self.templateList.list.selection_set(first=0) # Default template list to be first item. Must be changed before app.run()
 
 
 if __name__ == '__main__':

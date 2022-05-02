@@ -7,7 +7,7 @@ from tkinter import Frame, ttk, filedialog, Label
 
 class MediaControls(BaseComponent):
     currentTimestamp = '00:00:00'
-    def __init__(self, app):
+    def __init__(self, app, audioController):
         super().__init__(app)
         self.frame = Frame(self.root)
         self.frame.columnconfigure(0, weight=1, uniform='column')
@@ -15,10 +15,12 @@ class MediaControls(BaseComponent):
         self.frame.columnconfigure(2, weight=1, uniform='column')
         self.frame.columnconfigure(3, weight=1, uniform='column')
 
+        self.audioController = audioController
+
         self.openFile = ttk.Button(self.frame, text='Open', command=self.fileBrowser)
-        self.playButton = ttk.Button(self.frame, text='Play')
-        self.stopButton = ttk.Button(self.frame, text='Stop')
-        self.exportButton = ttk.Button(self.frame, text='Export')
+        self.playButton = ttk.Button(self.frame, text='Play', command=self.audioController.onPressPlay)
+        self.stopButton = ttk.Button(self.frame, text='Stop', command=self.audioController.onPressStop)
+        self.exportButton = ttk.Button(self.frame, text='Export', command=self.audioController.onPressExport)
         self.fileInformationFrame = None
 
         self.openFile.grid(row=0, column=0, sticky='ew', padx=2)
@@ -36,7 +38,7 @@ class MediaControls(BaseComponent):
 
     def fileBrowser(self):
         fileToOpen = filedialog.askopenfilename(initialdir='{}'.format(getcwd()), title='Select a .wav file', filetypes=(('Audio Files', '.wav'), ('All Files', '*.*')))
-        file = File(fileToOpen)
+        file = self.audioController.load(fileToOpen)
 
         if file:
             self.validFileOpened(file)
@@ -48,7 +50,7 @@ class MediaControls(BaseComponent):
 
         _filename = Label(fileInfoFrame, text='File Name:')
         _samplerate = Label(fileInfoFrame, text='Sample Rate:')
-        _bitdepth = Label(fileInfoFrame, text='Bit Depth:')
+        _bitdepth = Label(fileInfoFrame, text='Duration:')
         _filetype = Label(fileInfoFrame, text='File Type:')
         _timestamp = Label(fileInfoFrame, text='Timestamp:')
 
@@ -59,10 +61,10 @@ class MediaControls(BaseComponent):
         _timestamp.grid(column=0, row=4, sticky='w')
 
         if file:
-            filename = Label(fileInfoFrame, text='105_AnalogueDrums_97_21_SP')
-            samplerate = Label(fileInfoFrame, text='44.1 kHz')
-            bitdepth = Label(fileInfoFrame, text='24')
-            filetype = Label(fileInfoFrame, text='.wav')
+            filename = Label(fileInfoFrame, text=self.audioController.file.filename)
+            samplerate = Label(fileInfoFrame, text='{} kHz'.format(self.audioController.file.sampleRate))
+            bitdepth = Label(fileInfoFrame, text=self.audioController.file.duration)
+            filetype = Label(fileInfoFrame, text=self.audioController.file.filetype)
             timestamp = Label(fileInfoFrame, text=self.currentTimestamp)
 
             filename.grid(column=3, row=0, sticky='e', columnspan=2)

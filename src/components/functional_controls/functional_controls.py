@@ -8,8 +8,9 @@ class FunctionalControls(BaseComponent):
     defaultVolume, defaultDelay, defaultDecay = 0.5, 0, 0
     currentVolume, currentDelay, currentDecay = None, None, None
 
-    def __init__(self, app):
+    def __init__(self, app, audioController):
         super().__init__(app)
+        self.audioController = audioController
         
         self.frame = Frame(self.root)
         self.frame.columnconfigure(1, weight=1, uniform='column')
@@ -46,10 +47,16 @@ class FunctionalControls(BaseComponent):
         return localFrame, valueLabel
     
     def onVolumeChange(self, event):
-        self.currentVolume.configure(text=event[0:4])
+        if not self.currentVolume == None:
+            self.currentVolume.configure(text=event[0:4])
+            self.audioController.onVolumeChange(event)
 
     def onDelayChange(self, event):
-        self.currentDelay.configure(text=event[0:4])
+        if not self.currentDelay == None:
+            self.currentDelay.configure(text=event[0:4])
+            self.audioController.onDelayChange(event)
 
     def onDecayChange(self, event):
-        self.currentDecay.configure(text=event[0:4])
+        if not self.currentDecay == None:
+            self.currentDecay.configure(text=event[0:4])
+            self.audioController.onDecayChange(event)
