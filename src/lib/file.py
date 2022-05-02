@@ -1,6 +1,7 @@
 # Class to handle all file related operations
 # Is useful to include some getters to easily receive file information through app.
 import librosa
+import soundfile as sf
 import datetime
 class File():
     file = ''
@@ -10,7 +11,7 @@ class File():
     sampleRate = 0
     numOfSamples = 0
     duration = 0
-    frequencyDomain = []
+    data = []
 
     def __init__(self, file):
         self.file = file # Set file
@@ -18,7 +19,7 @@ class File():
         # Carry out file related operations, set above attributes for easy access
         self.filename()
         self.filetype()
-        self.frequencyDomain()
+        self.getData()
         self.duration()
 
     def reset(self):
@@ -29,7 +30,7 @@ class File():
         self.sampleRate = 0
         self.numOfSamples = 0
         self.duration = 0
-        self.frequencyDomain = []
+        self.data = []
 
     def get(self):
         return self.file
@@ -46,9 +47,9 @@ class File():
         self.filetype = self.file.rsplit('.', 1)[-1]
         return '.'+self.filetype
 
-    def frequencyDomain(self):
-        y, sr = librosa.load(self.file, sr=None) # Librosa defaults to 22050 SR unless overridden with sr=None
-        self.frequencyDomain = y
+    def getData(self):
+        y, sr = sf.read(self.file) # sf returns a numpy array [frames x channels], along with files SR
+        self.data = y
         self.sampleRate = sr
         self.numOfSamples = len(y)
 

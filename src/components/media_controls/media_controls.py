@@ -1,8 +1,6 @@
-from distutils import ccompiler
 from os import getcwd
+from turtle import bgcolor
 from ..base.base import BaseComponent
-from ...lib.file import File
-
 from tkinter import Frame, ttk, filedialog, Label
 
 class MediaControls(BaseComponent):
@@ -18,9 +16,9 @@ class MediaControls(BaseComponent):
         self.audioController = audioController
 
         self.openFile = ttk.Button(self.frame, text='Open', command=self.fileBrowser)
-        self.playButton = ttk.Button(self.frame, text='Play', command=self.audioController.onPressPlay)
-        self.stopButton = ttk.Button(self.frame, text='Stop', command=self.audioController.onPressStop)
-        self.exportButton = ttk.Button(self.frame, text='Export', command=self.audioController.onPressExport)
+        self.playButton = ttk.Button(self.frame, text='Play', command=self.onPressPlay, state='disabled')
+        self.stopButton = ttk.Button(self.frame, text='Stop', command=self.onPressStop, state='disabled')
+        self.exportButton = ttk.Button(self.frame, text='Export', command=self.audioController.onPressExport, state='disabled')
         self.fileInformationFrame = None
 
         self.openFile.grid(row=0, column=0, sticky='ew', padx=2)
@@ -33,6 +31,11 @@ class MediaControls(BaseComponent):
         self.frame.grid(column=0, row=3, sticky='ew')
 
     def validFileOpened(self, file):
+        # Enable media controls
+        self.playButton.config(state='normal')
+        self.stopButton.config(state='normal')
+        self.exportButton.config(state='normal')
+
         # Enable timestamp label
         self.fileInformation(file)
 
@@ -76,3 +79,16 @@ class MediaControls(BaseComponent):
         self.fileInformationFrame = fileInfoFrame
         self.fileInformationFrame.grid(row=4, column=0, columnspan=4, sticky='ew', pady=10)
 
+    def onPressPlay(self):
+        play = ttk.Style()
+        stop = ttk.Style()
+        play.configure('MCPlay.TButton', foreground='green')
+        stop.configure('MCStop.TButton', foreground='red')
+        self.playButton.configure(style='MCPlay.TButton')
+        self.stopButton.configure(style='MCStop.TButton')
+        self.audioController.onPressPlay()
+
+    def onPressStop(self):
+        self.playButton.configure(style='TButton')
+        self.stopButton.configure(style='TButton')
+        self.audioController.onPressStop()

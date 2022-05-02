@@ -11,8 +11,8 @@ class AudioController():
 
     def onPressPlay(self):
         # Simple flow to keep track of audioSource threads.
-        # If thread has not started/does not exist, then start and track in self.audioThreads
-        # Threads are destroyed when new file is added
+        # If thread has not started/does not exist, then start and track in self.audioThreads[]
+        # Threads are destroyed when new file is loaded
         thread = self.audioSource.init(self.file)
         if thread in self.audioThreads:
             self.audioSource.run()
