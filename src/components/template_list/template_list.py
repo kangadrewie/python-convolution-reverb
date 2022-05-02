@@ -3,7 +3,7 @@ from os import listdir, getcwd
 from os.path import isfile, join
 from tkinter import Listbox, Label
 
-TEMPLATE_IR_PATH = '{}/src/lib/impulse_response_templates/'.format(getcwd())
+TEMPLATE_IR_PATH = '{}/static/impulse_response_templates/'.format(getcwd())
 
 class TemplateList(BaseComponent):
     def __init__(self, app):

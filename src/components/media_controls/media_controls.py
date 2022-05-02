@@ -1,7 +1,7 @@
 from distutils import ccompiler
 from os import getcwd
 from ..base.base import BaseComponent
-from ...lib.file.file import File
+from ...lib.file import File
 
 from tkinter import Frame, ttk, filedialog, Label
 
