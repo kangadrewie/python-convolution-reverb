@@ -1,15 +1,18 @@
 import numpy as np
 import sounddevice as sd
+from threading import Thread, currentThread
 
-class AudioSource():
+class AudioSource(Thread):
     def __init__(self):
+        Thread.__init__(self)
         self.sd = sd
         self.file = None
 
     def init(self, file):
         self.file = file
+        return currentThread()
 
-    def process(self):
+    def run(self):
         fs = self.file.sampleRate
         data = self.file.frequencyDomain
         self.sd.play(data, fs)
