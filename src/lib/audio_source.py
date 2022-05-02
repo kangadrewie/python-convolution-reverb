@@ -12,14 +12,13 @@ class AudioSource(Thread):
         self.device = self.sd.default.device['output']
         self.file = None
         self.currentFramePosition = 0
-        self.blockSize = 1024
+        self.blockSize = 2048
         self.stream = None
 
     def init(self, file):
         self.file = file
-        return currentThread()
 
-    def run(self):
+        # Init stream
         self.stream = sd.OutputStream(
             samplerate=self.file.sampleRate,
             device=self.device,
@@ -27,9 +26,9 @@ class AudioSource(Thread):
             channels=self.file.data.shape[1],
             callback=self.getNextAudioBlock
         )
-        with self.stream:
-            while self.currentFramePosition < len(self.file.data):
-                continue
+
+    def run(self):
+        self.stream.start()
 
     def getNextAudioBlock(self, outdata, frames, time, status):
         # Calculate current position and total data size delta
@@ -52,9 +51,11 @@ class AudioSource(Thread):
 
     def stop(self):
         self.stream.stop()
-        self.stream.close()
-        self.stream = None
         self.currentFramePosition = 0
 
     def write(self):
         print('write to file')
+
+    def getThread(self):
+        return currentThread()
+

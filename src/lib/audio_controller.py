@@ -13,7 +13,7 @@ class AudioController():
         # Simple flow to keep track of audioSource threads.
         # If thread has not started/does not exist, then start and track in self.audioThreads[]
         # Threads are destroyed when new file is loaded
-        thread = self.audioSource.init(self.file)
+        thread = self.audioSource.getThread()
         if thread in self.audioThreads:
             self.audioSource.run()
         else:
@@ -45,6 +45,8 @@ class AudioController():
             # Create new instances of both
             self.file = File(file)
             self.audioSource = AudioSource()
+            self.audioSource.init(self.file) # init audioSource
             return True
-        except:
+        except Exception as e:
+            print(e)
             return False
