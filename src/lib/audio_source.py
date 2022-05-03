@@ -1,8 +1,6 @@
 import numpy as np
 import sounddevice as sd
-import soundfile as sf
 from threading import Thread, currentThread
-import threading
 
 
 class AudioSource(Thread):

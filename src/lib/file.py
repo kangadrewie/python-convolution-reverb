@@ -3,6 +3,7 @@
 import librosa
 import soundfile as sf
 import datetime
+from .utils import Utils
 class File():
     file = ''
     path = ''
@@ -49,6 +50,9 @@ class File():
 
     def getData(self):
         y, sr = sf.read(self.file) # sf returns a numpy array [frames x channels], along with files SR
+
+        # Normalise data
+        # self.data = [Utils.normalise(i) for i in y.shape()]
         self.data = y
         self.sampleRate = sr
         self.numOfSamples = len(y)
