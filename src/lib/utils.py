@@ -6,6 +6,6 @@ class Utils():
         numOfSamples = round(len(data) * float(newSampleRate) / oldSampleRate)
         return sps.resample(data, numOfSamples)
 
-    def normalise(data):
-        norm = np.linalg.norm(data)
-        return  data / norm
+    def normalise(a):
+        # b = np.interp(a, (a.min(), a.max()), (-10, +10))
+        return a

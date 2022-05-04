@@ -27,8 +27,8 @@ class AudioController():
             self.convolution.start()
 
     def onPressStop(self):
-        # self.audioSource.stop()
-        self.convolution.stop()
+        self.audioSource.stop()
+        # self.convolution.stop()
 
     def onPressExport(self):
         print('Export')

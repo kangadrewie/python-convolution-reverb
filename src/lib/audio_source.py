@@ -10,11 +10,11 @@ class AudioSource(Thread):
         self.device = self.sd.default.device['output']
         self.file = None
         self.currentFramePosition = 0
-        self.blockSize = 2048
         self.stream = None
 
     def init(self, file):
         self.file = file
+        self.blockSize = self.file.numOfSamples // 4
 
         # Init stream
         self.stream = sd.OutputStream(
