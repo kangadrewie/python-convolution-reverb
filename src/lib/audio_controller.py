@@ -18,17 +18,17 @@ class AudioController():
         dryThread = self.audioSource.getThread()
         wetThread = self.convolution.getThread()
         if dryThread and wetThread in self.audioThreads:
-            # self.audioSource.run()
+            self.audioSource.run()
             self.convolution.run()
         else:
             self.audioThreads.append(dryThread)
             self.audioThreads.append(wetThread)
-            # self.audioSource.start()
+            self.audioSource.start()
             self.convolution.start()
 
     def onPressStop(self):
         self.audioSource.stop()
-        # self.convolution.stop()
+        self.convolution.stop()
 
     def onPressExport(self):
         print('Export')
@@ -41,6 +41,9 @@ class AudioController():
 
     def onDecayChange(self, event):
         return event
+
+    def onTemplateChange(self, event):
+        self.convolution.irTemplate = event
 
     def load(self, file):
         try:
@@ -55,6 +58,7 @@ class AudioController():
             self.audioSource = AudioSource()
             self.convolution.init(self.file)  # init audioSource
             self.audioSource.init(self.file) # init audioSource
+            print(self.file.numOfSamples)
             return True
         except Exception as e:
             print(e)

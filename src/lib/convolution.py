@@ -14,7 +14,6 @@ TEMPLATE_IR_PATH = '{}/static/impulse_response_templates/'.format(getcwd())
 # This class can inherit AudioSource as it will do the same job only modifying the data stream
 utils = Utils()
 
-
 class Convolution(AudioSource):
     B = []
     def __init__(self):
@@ -23,18 +22,15 @@ class Convolution(AudioSource):
         self.ir = {}
         self.sf = sf
         self.volume = 0.5
-        self.overlap_data = np.array([])
-        self.overlap_index = 0
-        self.x = None
+        self.overlap_data_left = []
+        self.overlap_data_right = []
+        self.irTemplate = 'Highly Damped Large Room'
+
         # Read and load IR responses into memory
         for file in listdir(TEMPLATE_IR_PATH):
             if isfile(join(TEMPLATE_IR_PATH, file)):
                 ir_data, ir_sr = self.sf.read(join(TEMPLATE_IR_PATH, file), always_2d=True)
-                self.ir[file] = ir_data
-
-        # print(self.ir)
-
-        return None
+                self.ir[file[:-4]] = ir_data
 
     def next_power_of_2(self, n):
         return 1 << (int(np.log2(n - 1)) + 1)
@@ -45,39 +41,21 @@ class Convolution(AudioSource):
         output[:x.shape[0]] = x
         return output
 
-    def fft_convolution(self, x, h, K=None):
+    def convolution(self, x, h, K=None):
         Nx = x[:,0].shape[0]
         Nh = h[:,0].shape[0]
-        Ny = Nx + Nh # output length
-
-        # Make K smallest optimal
+        Ny = Nx + Nh - 1 # output length
         if K is None:
             K = self.next_power_of_2(Ny)
-
-        # Calculate the fast Fourier transforms 
-        # of the time-domain signals
         X_1 = np.fft.fft(self.pad_zeros_to(x[:, 0], K))
         X_2 = np.fft.fft(self.pad_zeros_to(x[:, 1], K))
-
         H_1 = np.fft.fft(self.pad_zeros_to(h[:, 0], K))
         H_2 = np.fft.fft(self.pad_zeros_to(h[:, 1], K))
-
-        # Perform circular convolution in the frequency domain
         Y_1 = np.multiply(X_1, H_1)
         Y_2 = np.multiply(X_2, H_2)
-
-        # Go back to time domain
-        y_1 = np.real(np.fft.ifft(Y_1))
-        y_2 = np.real(np.fft.ifft(Y_2))
-
-        output = np.empty([Ny, 2])
-        for n in range(Ny):
-            output[n] = [y_1[n], y_2[n]]
-
-        # Trim the signal to the expected length
-        # return first half of convolved block
-        # return second half for next block overlap
-        return output[:Nx], output[Nx:]
+        y1 = np.real(np.fft.ifft(Y_1))
+        y2 = np.real(np.fft.ifft(Y_2))
+        return y1[:Nx], y2[:Nx], y1[Nx:], y2[Nx:] 
 
     def getNextAudioBlock(self, outdata, frames, time, status):
         # Calculate current position and total data size delta
@@ -86,27 +64,34 @@ class Convolution(AudioSource):
         # Calculate the next block index
         nextBlockIndex = self.currentFramePosition + self.blockSize
 
-        h = np.array(self.ir['Large Wide Echo Hall.wav'])
+        # Get RIR
+        h = np.array(self.ir[self.irTemplate])
+        Y = None
+
+        # Get next block
         block = self.file.data[self.currentFramePosition:nextBlockIndex]
 
-        # Check whether the defined block size is still able to be filled fully
-        if self.blockSize > delta:
-            block = self.file.data[self.currentFramePosition:]
+        # convolve block
+        newBlockLeftChannel, newBlockRightChannel, overlapLeftChannel, overlapRightChannel = self.convolution(block, h[:self.blockSize])
 
-        # Receive output of convolution
-        if self.currentFramePosition < self.blockSize:
-            self.x = block
+        if len(self.overlap_data_left) > 0:
+            Y_1 = np.add(self.overlap_data_left[:len(newBlockLeftChannel)], newBlockLeftChannel)
+            Y_2 = np.add(self.overlap_data_right[:len(newBlockRightChannel)], newBlockRightChannel)
         else:
-            print('OVERLLAPING FROM {} to {}'.format(self.overlap_index, self.blockSize))
-            print('half of previous block', self.overlap_data[:self.blockSize//2].shape, 'half of new block', self.x[:self.blockSize//2].shape)
-            self.x = np.concatenate((self.overlap_data[:self.blockSize//2], self.x[:self.blockSize//2]))
+            Y_1 = newBlockLeftChannel
+            Y_2 = newBlockRightChannel
 
-        y, next_y = self.fft_convolution(self.x, h[:self.blockSize])
-        print(y.shape, '<<< Y')
-        self.overlap_data = next_y
-        print(next_y.shape, '<<< NEXT Y')
-        self.overlap_index += self.blockSize // 2
 
-        outdata[:self.blockSize] = y
-        # keep track of position in the stream
+        self.overlap_data_left = overlapLeftChannel
+        self.overlap_data_right = overlapRightChannel
+
+        output = np.empty([len(block), 2])
+        for n in range(len(block)):
+            output[n] = [Y_1[n], Y_2[n]]
+
+        # # Check whether the defined block size is still able to be filled fully
+        if delta < self.blockSize:
+            raise self.sd.CallbackStop()
+
+        outdata[:len(block)] = np.multiply(np.add(output, np.multiply(block, -1)), self.volume)
         self.currentFramePosition += self.blockSize

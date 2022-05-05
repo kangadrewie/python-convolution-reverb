@@ -10,11 +10,11 @@ class AudioSource(Thread):
         self.device = self.sd.default.device['output']
         self.file = None
         self.currentFramePosition = 0
+        self.blockSize = 512
         self.stream = None
 
     def init(self, file):
         self.file = file
-        self.blockSize = self.file.numOfSamples // 4
 
         # Init stream
         self.stream = sd.OutputStream(
@@ -36,16 +36,12 @@ class AudioSource(Thread):
         nextBlockIndex = self.currentFramePosition + self.blockSize
 
         # Check whether the defined block size is still able to be filled fully
-        if self.blockSize < delta:
-            # The next full block of 1024 samples can be passed to stream for output
-            outdata[:self.blockSize] = self.file.data[self.currentFramePosition:nextBlockIndex]
-
-            # keep track of position in the stream
-            self.currentFramePosition += self.blockSize
-        else:
-            # Block Size is too large for remaining data. Pass what is left to stream and restart from zero
-            outdata = self.file.data[self.currentFramePosition:]
-            self.currentFramePosition = 0
+        if delta < self.blockSize:
+            raise self.sd.CallbackStop()
+        # The next full block of 1024 samples can be passed to stream for output
+        outdata[:self.blockSize] = self.file.data[self.currentFramePosition:nextBlockIndex]
+        # keep track of position in the stream
+        self.currentFramePosition += self.blockSize
 
     def stop(self):
         self.stream.stop()

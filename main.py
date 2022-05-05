@@ -25,7 +25,7 @@ class Application():
         self.root.columnconfigure(0, weight=1)
         self.root.columnconfigure(1, weight=2)
 
-        self.templateList = TemplateList(self)
+        self.templateList = TemplateList(self, self.audioController)
         self.mediaControls = MediaControls(self, self.audioController)
         self.functionalControls = FunctionalControls(self, self.audioController)
 

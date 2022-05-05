@@ -6,9 +6,10 @@ from tkinter import Listbox, Label
 TEMPLATE_IR_PATH = '{}/static/impulse_response_templates/'.format(getcwd())
 
 class TemplateList(BaseComponent):
-    def __init__(self, app):
+    def __init__(self, app, audioController):
         super().__init__(app)
 
+        self.audioController = audioController
         # List configuration
         self.listLabel = Label(self.root, text='Presets', font=('Helvetica', 12, 'bold'))
         self.list = Listbox(
@@ -21,6 +22,7 @@ class TemplateList(BaseComponent):
         # Grid
         self.listLabel.grid(column=0, row=0, sticky='nw', pady=10, padx=5)
         self.list.grid(column=0, row=1, sticky='ew', padx=10)
+        self.list.bind('<<ListboxSelect>>', self.items_selected)
 
         # Get list of IR responses in /lib/impulse_response_templates/
         self.templates = self.getTemplates(TEMPLATE_IR_PATH)
@@ -35,4 +37,12 @@ class TemplateList(BaseComponent):
     
     def renderTemplates(self):
         for idx, t in enumerate(self.templates):
-            self.list.insert(idx, t)
+            self.list.insert(idx, t[:-4])
+
+    # handle event
+    def items_selected(self, event):
+        # get selected indices
+        selected_indices = self.list.curselection()
+        # get selected items
+        selected_langs = ",".join([self.list.get(i) for i in selected_indices])
+        self.audioController.onTemplateChange(selected_langs)
