@@ -41,10 +41,10 @@ class MediaControls(BaseComponent):
 
     def fileBrowser(self):
         fileToOpen = filedialog.askopenfilename(initialdir='{}'.format(getcwd()), title='Select a .wav file', filetypes=(('Audio Files', '.wav'), ('All Files', '*.*')))
-        file = self.audioController.load(fileToOpen)
-
-        if file:
-            self.validFileOpened(file)
+        if fileToOpen:
+            isLoaded = self.audioController.load(fileToOpen)
+            if isLoaded:
+                self.validFileOpened(fileToOpen)
 
     def fileInformation(self, file):
         fileInfoFrame = Frame(self.frame)

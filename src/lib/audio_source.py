@@ -49,7 +49,6 @@ class AudioSource(Thread):
             # keep track of position in the stream
             self.currentFramePosition += self.blockSize
 
-
     def stop(self):
         self.stream.stop()
         self.currentFramePosition = 0
