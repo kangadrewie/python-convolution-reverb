@@ -9,7 +9,7 @@ import numpy as np
 import numpy.fft as fft
 from scipy import signal
 
-TEMPLATE_IR_PATH = '{}/static/impulse_response_templates/'.format(getcwd())
+TEMPLATE_IR_PATH = '{}/src/static/impulse_response_templates/'.format(getcwd())
 
 # This class can inherit AudioSource as it will do the same job only modifying the data stream
 utils = Utils()

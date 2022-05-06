@@ -38,18 +38,13 @@ class AudioController():
         self.convolution.volume = float(event) / 100 # Scale Volume to be 0-1
         self.audioSource.volume = 1 - (float(event) / 100) # adjust original source volume to keep overall gain the same, but change the mix
 
-    def onDelayChange(self, event):
-        return event
-
-    def onDecayChange(self, event):
-        return event
-
     def onTemplateChange(self, event):
         self.convolution.irTemplate = event
 
     def load(self, file):
+        # Load audio File into memory
         try:
-            # Destroy old pointers to file/audioSource instances before load/reloading new file
+            # Destroy any old pointers to file/audioSource instances before load/reloading new file
             self.file = None
             self.audioSource = None 
             self.audioThreads = []
@@ -60,7 +55,7 @@ class AudioController():
             self.audioSource = AudioSource()
             self.convolution.init(self.file)  # init audioSource
             self.audioSource.init(self.file) # init audioSource
-            self.isPlayable = True
+            self.isPlayable = True # var to tell gui that file is able to be played
             return True
         except Exception as e:
             print(e)
