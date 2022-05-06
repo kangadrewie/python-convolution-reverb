@@ -1,11 +1,13 @@
 import numpy as np
 import sounddevice as sd
+import soundfile as sf
 from threading import Thread, currentThread
 
 class AudioSource(Thread):
     def __init__(self):
         Thread.__init__(self)
         self.sd = sd
+        self.sf = sf
         self.device = self.sd.default.device['output']
         self.file = None
         self.currentFramePosition = 0
@@ -17,6 +19,8 @@ class AudioSource(Thread):
         self.file = file
 
         # Init stream
+        # Soundfile uses a callback to request data blocks
+        # This is handle via getNextAudioBlock method
         self.stream = sd.OutputStream(
             samplerate=self.file.sampleRate,
             device=self.device,
@@ -52,8 +56,10 @@ class AudioSource(Thread):
         self.stream.stop()
         self.currentFramePosition = 0
 
-    def write(self):
-        print('write to file')
+    def write(self, inputData, reverbData, path, sampleRate):
+        # Combine both input and reverb
+        data = np.add(inputData, reverbData)
+        self.sf.write(data=data, samplerate=sampleRate, file=path)
 
     def getThread(self):
         return currentThread()

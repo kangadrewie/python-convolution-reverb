@@ -1,5 +1,4 @@
 from os import getcwd
-from turtle import bgcolor
 from ..base.base import BaseComponent
 from tkinter import Frame, ttk, filedialog, Label
 
@@ -18,7 +17,7 @@ class MediaControls(BaseComponent):
         self.openFile = ttk.Button(self.frame, text='Open', command=self.fileBrowser)
         self.playButton = ttk.Button(self.frame, text='Play', command=self.onPressPlay, state='disabled')
         self.stopButton = ttk.Button(self.frame, text='Stop', command=self.onPressStop, state='disabled')
-        self.exportButton = ttk.Button(self.frame, text='Export', command=self.audioController.onPressExport, state='disabled')
+        self.exportButton = ttk.Button(self.frame, text='Export', command=self.onPressExport, state='disabled')
         self.fileInformationFrame = None
 
         self.openFile.grid(row=0, column=0, sticky='ew', padx=2)
@@ -95,3 +94,8 @@ class MediaControls(BaseComponent):
         self.playButton.configure(style='TButton')
         self.stopButton.configure(style='TButton')
         self.audioController.onPressStop()
+
+    def onPressExport(self):
+        exportPath = filedialog.asksaveasfilename()
+        if exportPath:
+            self.audioController.onPressExport(exportPath)

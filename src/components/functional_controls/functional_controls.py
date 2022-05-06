@@ -38,9 +38,9 @@ class FunctionalControls(BaseComponent):
         x, y = event.x, event.y
         # Determine whether user is increasing/decreasing knob value
         if y < self.LAST_Y_MOUSE_POS and self.CURRENT_VALUE < self.MAX_ANGLE:
-            self.CURRENT_VALUE += 2
+            self.CURRENT_VALUE += 5
         if y > self.LAST_Y_MOUSE_POS and self.CURRENT_VALUE > self.MIN_ANGLE:
-            self.CURRENT_VALUE -= 2
+            self.CURRENT_VALUE -= 5
 
         # set new knob angle
         self.knob_coords[4] = self.CURRENT_VALUE

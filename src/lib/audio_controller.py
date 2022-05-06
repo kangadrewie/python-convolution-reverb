@@ -1,6 +1,9 @@
 from .file import File
 from .audio_source import AudioSource
 from .convolution import Convolution
+from .utils import Utils
+
+import numpy as np
 
 class AudioController():
     def __init__(self):
@@ -29,8 +32,20 @@ class AudioController():
         self.audioSource.stop()
         self.convolution.stop()
 
-    def onPressExport(self):
-        print('Export')
+    def onPressExport(self, path):
+        irTemplate = self.convolution.ir[self.convolution.irTemplate]
+        inputData = self.file.data
+        sampleRate = self.file.sampleRate
+        x1, y1, _, _ = self.convolution.convolution(inputData, irTemplate)
+        reverbData = Utils.combineChannels(x1, y1)
+
+        self.audioSource.write(
+            np.multiply(inputData, self.audioSource.volume),
+            np.multiply(reverbData, self.convolution.volume),
+            path,
+            sampleRate
+        )
+
     
     def onVolumeChange(self, event):
         self.convolution.volume = float(event) / 100 # Scale Volume to be 0-1
