@@ -41,8 +41,7 @@ class TemplateList(BaseComponent):
 
     # handle event
     def items_selected(self, event):
-        # get selected indices
-        selected_indices = self.list.curselection()
-        # get selected items
-        selected_langs = ",".join([self.list.get(i) for i in selected_indices])
-        self.audioController.onTemplateChange(selected_langs)
+        if self.audioController.isPlayable:
+            selectedIndices = self.list.curselection()
+            selectedLangs = ",".join([self.list.get(i) for i in selectedIndices])
+            self.audioController.onTemplateChange(selectedLangs)

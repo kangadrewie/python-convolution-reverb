@@ -89,9 +89,10 @@ class Convolution(AudioSource):
         for n in range(len(block)):
             output[n] = [Y_1[n], Y_2[n]]
 
-        # # Check whether the defined block size is still able to be filled fully
-        if delta < self.blockSize:
-            raise self.sd.CallbackStop()
-
         outdata[:len(block)] = np.multiply(np.add(output, np.multiply(block, -1)), self.volume)
-        self.currentFramePosition += self.blockSize
+
+        # Check whether the defined block size is still able to be filled fully
+        if delta < self.blockSize:
+            self.currentFramePosition = 0
+        else:
+            self.currentFramePosition += self.blockSize

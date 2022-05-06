@@ -12,6 +12,7 @@ class AudioSource(Thread):
         self.currentFramePosition = 0
         self.blockSize = 512
         self.stream = None
+        self.volume = 0.5
 
     def init(self, file):
         self.file = file
@@ -35,13 +36,19 @@ class AudioSource(Thread):
         # Calculate the next block index
         nextBlockIndex = self.currentFramePosition + self.blockSize
 
+        # Allocate next block with data
+        block = self.file.data[self.currentFramePosition:nextBlockIndex]
+
+        # The next full block of 1024 samples can be passed to stream for output
+        outdata[:len(block)] = np.multiply(block, self.volume)
+
         # Check whether the defined block size is still able to be filled fully
         if delta < self.blockSize:
-            raise self.sd.CallbackStop()
-        # The next full block of 1024 samples can be passed to stream for output
-        outdata[:self.blockSize] = self.file.data[self.currentFramePosition:nextBlockIndex]
-        # keep track of position in the stream
-        self.currentFramePosition += self.blockSize
+            self.currentFramePosition = 0
+        else:
+            # keep track of position in the stream
+            self.currentFramePosition += self.blockSize
+
 
     def stop(self):
         self.stream.stop()

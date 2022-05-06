@@ -7,6 +7,7 @@ import numpy as np
 class AudioController():
     def __init__(self):
         self.file = None
+        self.isPlayable = False
         self.audioSource = None
         self.convolution = None
         self.audioThreads = []
@@ -34,7 +35,8 @@ class AudioController():
         print('Export')
     
     def onVolumeChange(self, event):
-        self.convolution.volume = float(event)
+        self.convolution.volume = float(event) / 100 # Scale Volume to be 0-1
+        self.audioSource.volume = 1 - (float(event) / 100) # adjust original source volume to keep overall gain the same, but change the mix
 
     def onDelayChange(self, event):
         return event
@@ -58,7 +60,7 @@ class AudioController():
             self.audioSource = AudioSource()
             self.convolution.init(self.file)  # init audioSource
             self.audioSource.init(self.file) # init audioSource
-            print(self.file.numOfSamples)
+            self.isPlayable = True
             return True
         except Exception as e:
             print(e)
