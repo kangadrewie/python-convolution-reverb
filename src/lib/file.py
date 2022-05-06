@@ -1,6 +1,5 @@
 # Class to handle all file related operations
 # Is useful to include some getters to easily receive file information through app.
-import librosa
 import soundfile as sf
 import datetime
 from .utils import Utils

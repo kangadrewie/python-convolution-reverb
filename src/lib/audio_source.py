@@ -2,7 +2,6 @@ import numpy as np
 import sounddevice as sd
 from threading import Thread, currentThread
 
-
 class AudioSource(Thread):
     def __init__(self):
         Thread.__init__(self)

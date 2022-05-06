@@ -11,7 +11,7 @@ from src.components.functional_controls.functional_controls import FunctionalCon
 # Theme used - credit - https://github.com/rdbende/Sun-Valley-ttk-theme
 
 class Application():
-    def __init__(self, title, width, height, padding):
+    def __init__(self, title, width, height):
         self.root = Tk()
         self.title = self.root.title(title)
         self.root.geometry('{}x{}'.format(width, height))
@@ -41,6 +41,6 @@ class Application():
 
 
 if __name__ == '__main__':
-    app = Application('Convolution Reverb', 550, 300, 5)
+    app = Application('Convolution Reverb', 550, 300)
     app.init()
     app.run()

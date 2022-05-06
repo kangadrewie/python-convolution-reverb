@@ -1,4 +1,3 @@
-from inspect import currentframe
 from os import getcwd, listdir
 from os.path import isfile, join
 from .audio_source import AudioSource
@@ -6,8 +5,6 @@ from .utils import Utils
 
 import soundfile as sf
 import numpy as np
-import numpy.fft as fft
-from scipy import signal
 
 TEMPLATE_IR_PATH = '{}/src/static/impulse_response_templates/'.format(getcwd())
 

@@ -51,7 +51,8 @@ class FunctionalControls(BaseComponent):
         scaler = 100 / (abs(self.MIN_ANGLE) + abs(self.MAX_ANGLE))
         self.volume = (self.CURRENT_VALUE * scaler) + 50
         self.canvas.itemconfig(self.value, text=self.volume)
-        self.audioController.onVolumeChange(self.volume)
+        if self.audioController.isPlayable:
+            self.audioController.onVolumeChange(self.volume)
     
     def calculatePosition(self, data):
         # Largely taken from - https://stackoverflow.com/questions/41451690/how-to-make-tkinter-object-move-in-circlular-path

@@ -79,6 +79,9 @@ class MediaControls(BaseComponent):
         self.fileInformationFrame = fileInfoFrame
         self.fileInformationFrame.grid(row=4, column=0, columnspan=4, sticky='ew', pady=10)
 
+    def updateTimestamp(self, time):
+        print(time)
+
     def onPressPlay(self):
         play = ttk.Style()
         stop = ttk.Style()

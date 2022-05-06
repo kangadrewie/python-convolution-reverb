@@ -2,8 +2,6 @@ from .file import File
 from .audio_source import AudioSource
 from .convolution import Convolution
 
-import numpy as np
-
 class AudioController():
     def __init__(self):
         self.file = None
