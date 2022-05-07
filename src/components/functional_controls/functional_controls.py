@@ -8,6 +8,7 @@ class FunctionalControls(BaseComponent):
     MIN_ANGLE, DEFAULT_ANGLE, MAX_ANGLE = -160, 0, 160
     CURRENT_VALUE = DEFAULT_ANGLE
     LAST_X_MOUSE_POS, LAST_Y_MOUSE_POS = 0, 0
+    START_POS = (0, 0)
 
     def __init__(self, app, audioController):
         super().__init__(app)
@@ -25,7 +26,8 @@ class FunctionalControls(BaseComponent):
 
         self.value = self.canvas.create_text(self.MID_Y, self.HEIGHT-30, font='Helvetica 12', text='50.0', fill='white')
 
-        self.canvas.bind("<B1-Motion>", self.onVolumeChange)
+        self.canvas.bind('<B1-Motion>', self.onVolumeChange)
+        self.canvas.bind('<Button-1>', self.onPress)
         self.canvas.grid(column=1, row=0, sticky='ew', rowspan=4)
 
         self.volume = 50
@@ -34,12 +36,29 @@ class FunctionalControls(BaseComponent):
         x1, y1, x2, y2 = self.calculatePosition(data)
         return self.canvas.create_oval(x1, y1, x2, y2, fill=color, outline='grey50')
 
-    def onVolumeChange(self, event):
+    def onPress(self, event):
+        print(event)
         x, y = event.x, event.y
+        self.START_POS = (x,y)
+    
+    def slope(self, startPos, newPos):
+        # Not perfect but works ok for now
+        x1, y1 = startPos
+        x2, y2 = newPos
+
+        slope = (y1 - y2) / (x1 - x2)
+        if (slope < 0 and x1 > 0 and x2 > self.MID_X) or (slope > 0 and x1 > 0 and x2 > self.MID_X) or slope == 0:
+            return 1
+        else:
+            return -1
+
+    def onVolumeChange(self, event):
         # Determine whether user is increasing/decreasing knob value
-        if y < self.LAST_Y_MOUSE_POS and self.CURRENT_VALUE < self.MAX_ANGLE:
+        x, y = event.x, event.y
+        slope = self.slope((x,y), self.START_POS)
+        if slope == 1 and self.CURRENT_VALUE < self.MAX_ANGLE:
             self.CURRENT_VALUE += 5
-        if y > self.LAST_Y_MOUSE_POS and self.CURRENT_VALUE > self.MIN_ANGLE:
+        if slope == -1 and self.CURRENT_VALUE > self.MIN_ANGLE:
             self.CURRENT_VALUE -= 5
 
         # set new knob angle

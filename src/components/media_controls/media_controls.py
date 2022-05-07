@@ -1,9 +1,11 @@
 from os import getcwd
 from ..base.base import BaseComponent
 from tkinter import Frame, ttk, filedialog, Label
+import tkinter as tk
+import datetime
 
 class MediaControls(BaseComponent):
-    currentTimestamp = '00:00:00'
+    currentTimestamp = '0:00:00'
     def __init__(self, app, audioController):
         super().__init__(app)
         self.frame = Frame(self.root)
@@ -24,6 +26,8 @@ class MediaControls(BaseComponent):
         self.playButton.grid(row=0, column=1, sticky='ew', padx=2)
         self.stopButton.grid(row=0, column=2, sticky='ew', padx=2)
         self.exportButton.grid(row=0, column=3, sticky='ew', padx=2)
+        self.timestamp = None
+        self.seconds = 0
 
         self.fileInformation(None)
 
@@ -68,18 +72,31 @@ class MediaControls(BaseComponent):
             bitdepth = Label(fileInfoFrame, text=self.audioController.file.duration)
             filetype = Label(fileInfoFrame, text=self.audioController.file.filetype)
             timestamp = Label(fileInfoFrame, text=self.currentTimestamp)
+            self.timestamp = timestamp
 
             filename.grid(column=3, row=0, sticky='e', columnspan=2)
             samplerate.grid(column=3, row=1, sticky='e', columnspan=2)
             bitdepth.grid(column=3, row=2, sticky='e', columnspan=2)
             filetype.grid(column=3, row=3, sticky='e', columnspan=2)
-            timestamp.grid(column=3, row=4, sticky='e', columnspan=2)
+            timestamp = timestamp.grid(column=3, row=4, sticky='e', columnspan=2)
 
         self.fileInformationFrame = fileInfoFrame
         self.fileInformationFrame.grid(row=4, column=0, columnspan=4, sticky='ew', pady=10)
 
-    def updateTimestamp(self, time):
-        print(time)
+    def updateTimestamp(self):
+        # Temp hack to approx timestamp
+        duration = self.audioController.file.numOfSamples / self.audioController.file.sampleRate
+        timestamp = str(datetime.timedelta(seconds=self.seconds))
+        self.timestamp.config(text=timestamp)
+        if not self.isPlaying:
+            self.timestamp.after_cancel(self.timestampTimer)
+        if self.seconds+1 >= duration:
+            self.seconds = 0
+        else:
+            self.seconds += 1
+        self.timestampTimer = self.timestamp.after(1000, self.updateTimestamp)
+
+
 
     def onPressPlay(self):
         play = ttk.Style()
@@ -89,11 +106,16 @@ class MediaControls(BaseComponent):
         self.playButton.configure(style='MCPlay.TButton')
         self.stopButton.configure(style='MCStop.TButton')
         self.audioController.onPressPlay()
+        self.isPlaying = True
+        self.updateTimestamp()
+
 
     def onPressStop(self):
         self.playButton.configure(style='TButton')
         self.stopButton.configure(style='TButton')
         self.audioController.onPressStop()
+        self.isPlaying = False
+        self.seconds = 0
 
     def onPressExport(self):
         exportPath = filedialog.asksaveasfilename()
