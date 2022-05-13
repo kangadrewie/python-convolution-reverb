@@ -1,7 +1,6 @@
 from os import getcwd
 from ..base.base import BaseComponent
 from tkinter import Frame, ttk, filedialog, Label
-import tkinter as tk
 import datetime
 
 class MediaControls(BaseComponent):

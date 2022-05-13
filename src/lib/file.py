@@ -52,7 +52,7 @@ class File():
 
         # Normalise data
         # self.data = [Utils.normalise(i) for i in y.shape()]
-        self.data = Utils.normalise(y)
+        self.data = y
         self.sampleRate = sr
         self.numOfSamples = len(y)
 

@@ -1,4 +1,3 @@
-from concurrent.futures.process import _system_limits_checked
 from ..base.base import BaseComponent
 from tkinter import Canvas
 import math
@@ -37,7 +36,6 @@ class FunctionalControls(BaseComponent):
         return self.canvas.create_oval(x1, y1, x2, y2, fill=color, outline='grey50')
 
     def onPress(self, event):
-        print(event)
         x, y = event.x, event.y
         self.START_POS = (x,y)
     
@@ -55,24 +53,27 @@ class FunctionalControls(BaseComponent):
     def onVolumeChange(self, event):
         # Determine whether user is increasing/decreasing knob value
         x, y = event.x, event.y
-        slope = self.slope((x,y), self.START_POS)
-        if slope == 1 and self.CURRENT_VALUE < self.MAX_ANGLE:
-            self.CURRENT_VALUE += 5
-        if slope == -1 and self.CURRENT_VALUE > self.MIN_ANGLE:
-            self.CURRENT_VALUE -= 5
+        try:
+            slope = self.slope((x,y), self.START_POS)
+            if slope == 1 and self.CURRENT_VALUE < self.MAX_ANGLE:
+                self.CURRENT_VALUE += 5
+            if slope == -1 and self.CURRENT_VALUE > self.MIN_ANGLE:
+                self.CURRENT_VALUE -= 5
 
-        # set new knob angle
-        self.knob_coords[4] = self.CURRENT_VALUE
-        self.moveObject(self.knob_id, self.knob_coords)
-        self.LAST_X_MOUSE_POS, self.LAST_Y_MOUSE_POS = x, y
+            # set new knob angle
+            self.knob_coords[4] = self.CURRENT_VALUE
+            self.moveObject(self.knob_id, self.knob_coords)
+            self.LAST_X_MOUSE_POS, self.LAST_Y_MOUSE_POS = x, y
 
-        # Calculate volume based on current knob position
-        scaler = 100 / (abs(self.MIN_ANGLE) + abs(self.MAX_ANGLE))
-        self.volume = (self.CURRENT_VALUE * scaler) + 50
-        self.canvas.itemconfig(self.value, text=self.volume)
-        if self.audioController.isPlayable:
-            self.audioController.onVolumeChange(self.volume)
-    
+            # Calculate volume based on current knob position
+            scaler = 100 / (abs(self.MIN_ANGLE) + abs(self.MAX_ANGLE))
+            self.volume = (self.CURRENT_VALUE * scaler) + 50
+            self.canvas.itemconfig(self.value, text=self.volume)
+            if self.audioController.isPlayable:
+                self.audioController.onVolumeChange(self.volume)
+        except ZeroDivisionError:
+            None
+ 
     def calculatePosition(self, data):
         # Largely taken from - https://stackoverflow.com/questions/41451690/how-to-make-tkinter-object-move-in-circlular-path
         center_x, center_y, radius, distance, angle, angle_speed, x, y = data

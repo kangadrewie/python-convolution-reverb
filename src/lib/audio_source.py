@@ -2,7 +2,7 @@ import numpy as np
 import sounddevice as sd
 import soundfile as sf
 from threading import Thread, currentThread
-
+from .utils import Utils
 class AudioSource(Thread):
     def __init__(self):
         Thread.__init__(self)
@@ -59,7 +59,7 @@ class AudioSource(Thread):
     def write(self, inputData, reverbData, path, sampleRate):
         # Combine both input and reverb
         data = np.add(inputData, reverbData)
-        self.sf.write(data=data, samplerate=sampleRate, file=path)
+        self.sf.write(data=Utils.normalise(data), samplerate=sampleRate, file=path)
 
     def getThread(self):
         return currentThread()

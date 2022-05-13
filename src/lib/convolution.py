@@ -42,7 +42,9 @@ class Convolution(AudioSource):
         return output
 
     def convolution(self, x, h):
+        # This article helped influence alot of this code - https://thewolfsound.com/fast-convolution-fft-based-overlap-add-overlap-save-partitioned/
         # With a blockSize of 512, after applying convolution, we will have a length of X+H-1
+
         # N = Input, H = RIR
 
         # We get the length of both input and RIR blocks
@@ -63,7 +65,7 @@ class Convolution(AudioSource):
         H_2 = np.fft.fft(self.padWithZeros(h[:, 1], K))
 
         # We then multiply our input with our rir data
-        # This is the convolution in the frequency domain
+        # This is the equivalent to convolution in the time domain
         Y_1 = np.multiply(X_1, H_1)
         Y_2 = np.multiply(X_2, H_2)
 
